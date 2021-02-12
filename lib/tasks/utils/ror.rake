@@ -46,24 +46,30 @@ namespace :ror do
     p '============================================================='
 =end
     p ""
-    p "SUPER SEARCH for 'UCB' - #{Time.now.strftime('%H:%m:%S')}"
-    results = OrgSelection::NewSearchService.super_search(term: "UCB")
-    pp results.map { |r| "#{r.users.length} - #{r.name}" }[0..10]
-    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 10 of #{results.length}"
+    s = Time.now
+    p "NEW MODEL SEARCH for 'UCB' - #{s.strftime('%H:%m:%S')}"
+    results = OrgIndex.search("UCB")
+    e = Time.now - s
+    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 10 of #{results.length} (elapsed - #{e})"
+    ucb = Org.where(abbreviation: "UCB").first
+    p ucb.inspect
+    p ucb&.users&.size
+    pp results.map { |r| "#{r.users_count} - #{r.name}" }[0..14]
     p ""
     p '============================================================='
     p ""
-    p "Searching for 'UCB' - #{Time.now.strftime('%H:%m:%S')}"
+    s = Time.now
+    p "NEW SERVICE SEARCH for 'UCB' - #{s.strftime('%H:%m:%S')}"
     results = OrgSelection::NewSearchService.search(term: "UCB")
-    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 10 of #{results.length}"
-
-    p results.first.inspect
-
-    pp results.map(&:name)[0..10]
+    e = Time.now - s
+    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 15 of #{results.length} (elapsed - #{e})"
+    pp results.map(&:name)[0..14]
     p ""
-    p "Old Way - #{Time.now.strftime('%H:%m:%S')}"
+    s = Time.now
+    p "Old Way - (ROR and DB) #{s.strftime('%H:%m:%S')}"
     results = OrgSelection::SearchService.search_combined(search_term: "UCB")
-    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 10 of #{results.length}"
-    pp results.map { |r| r[:name] }[0..10]
+    e = Time.now - s
+    p "Done: - #{Time.now.strftime('%H:%m:%S')}- Showing top 15 of #{results.length} (elapsed - #{e})"
+    pp results.map { |r| r[:name] }[0..14]
   end
 end

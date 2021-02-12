@@ -209,7 +209,7 @@ module DMPRoadmap
     # ------------------------------------------------------------------------ #
     # reCAPTCHA - recaptcha appears on the create account and contact us forms #
     # ------------------------------------------------------------------------ #
-    config.x.recaptcha.enabled = ENV["RECAPTCHA_ENABLED"]
+    config.x.recaptcha.enabled = Rails.env.development? ? false : ENV["RECAPTCHA_ENABLED"]
 
     # ----------- #
     # DOI Minting

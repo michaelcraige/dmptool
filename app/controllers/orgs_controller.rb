@@ -168,7 +168,7 @@ class OrgsController < ApplicationController
       # If we are including external API results
       orgs = case type
              when "super"
-               OrgIndex.super_search(args[:name])
+               OrgIndex.search(args[:name])
              when "new"
                OrgSelection::NewSearchService.search(term: args[:name])
              when "combined"

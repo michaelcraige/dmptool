@@ -17,6 +17,7 @@ namespace :v3 do
     Rake::Task["v3:load_re3data_repos"].execute
     Rake::Task["ror:index"].execute
     Rake::Task["v3:seed_org_indices"].execute
+    Rake::Task["v3:seed_org_users_count"].execute
     Rake::Task["v3:purge_ror_fundref_schemes"].execute
   end
 
@@ -148,6 +149,12 @@ namespace :v3 do
     end
   end
 
+  desc "Populates the new orgs.users_count"
+  task seed_org_users_count: :environment do
+    p "Updating the orgs.users_count field"
+    Org.all.each { |org| Org.reset_counters(org.id, :users) }
+  end
+
   desc "Purge old ROR and FUNDREF IdentifierSchemes"
   task purge_ror_fundref_schemes: :environment do
     ror_scheme = IdentifierScheme.find_by(name: "ror")
@@ -161,4 +168,5 @@ namespace :v3 do
     ror_scheme&.destroy
     fundref_scheme&.destroy
   end
+
 end

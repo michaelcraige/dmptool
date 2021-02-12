@@ -8,13 +8,6 @@ module OrgSelection
 
     class << self
 
-      def super_search(term:, funder_only: false)
-        return [] unless term.present?
-
-        # Search the org_indices table first
-        OrgIndex.super_search(term)
-      end
-
       def search(term:, funder_only: false)
         return [] unless term.present?
 

@@ -84,7 +84,7 @@ class User < ApplicationRecord
 
   belongs_to :language
 
-  belongs_to :org
+  belongs_to :org, counter_cache: true
 
   belongs_to :department, required: false
 

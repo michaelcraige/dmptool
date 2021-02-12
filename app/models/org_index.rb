@@ -53,30 +53,12 @@ class OrgIndex < ApplicationRecord
   }
 
   scope :search, lambda { |term|
-    by_name(term)
-      .or(by_acronym(term))
-      .or(by_alias(term))
-  }
-
-  scope :super_search, lambda { |term|
     results = by_name(term).or(by_acronym(term)).or(by_alias(term))
-
-p "A: #{results.length}"
-
     results = results.map(&:to_org)
-
-p "B: #{results.length}"
 
     # Also search the Orgs that have no association to this org_indices class
     results += Org.includes(:users).where.not(id: OrgIndex.all.pluck(:org_id)).search(term)
-
-p "C: #{results.length}"
-
-    results = sort_search_results(results: results, term: term)
-
-p "D: #{results.length}"
-
-    results
+    sort_search_results(results: results, term: term)
   }
 
   # ====================
@@ -98,6 +80,7 @@ p "D: #{results.length}"
       links: { "org": [{ "link": home_page, "text": "Home Page" }] },
       managed: false,
       target_url: home_page,
+      users_count: 0,
       funder: funder,
       institution: institution,
       organisation: !funder && !institution
@@ -108,13 +91,16 @@ p "D: #{results.length}"
 
   class << self
 
+    # Sort the results by their weight (desacending) and then name (ascending)
     def sort_search_results(results:, term:)
       return [] unless results.is_a?(Array) && results.any? && term.present?
 
-      results.sort { |a, b| weigh(term: term, org: b) <=> weigh(term: term, org: a) }
+      results.map { |result| { weight: weigh(term: term, org: result), name: result.name, org: result } }
+             .sort { |a, b| [b[:weight], a[:name]] <=> [a[:weight], b[:name]] }
+             .map { |result| result[:org] }
     end
 
-    # Weighs the result. The lower the weight the closer the match
+    # Weighs the result. The greater the weight the closer the match, preferring Orgs already in use
     def weigh(term:, org:)
       score = 0
       return score unless term.present? && org.present? && org.is_a?(Org)
@@ -122,6 +108,7 @@ p "D: #{results.length}"
       score += 1 if org.abbreviation == term.upcase
       score += 2 if org.name.downcase.start_with?(term.downcase)
       score += 1 if org.name.downcase.include?(term.downcase) && !org.name.downcase.start_with?(term.downcase)
+      score += org.users_count
       score
     end
 

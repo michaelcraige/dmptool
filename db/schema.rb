@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_12_150218) do
+ActiveRecord::Schema.define(version: 2021_02_12_225208) do
 
   create_table "annotations", id: :integer, force: :cascade do |t|
     t.integer "question_id"
@@ -285,6 +285,7 @@ ActiveRecord::Schema.define(version: 2021_02_12_150218) do
     t.string "contact_name"
     t.boolean "managed", default: false, null: false
     t.boolean "allow_doi", default: false
+    t.integer "users_count", default: 0
     t.index ["language_id"], name: "fk_rails_5640112cab"
     t.index ["region_id"], name: "fk_rails_5a6adf6bab"
   end
