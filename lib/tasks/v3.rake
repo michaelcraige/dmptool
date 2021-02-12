@@ -15,6 +15,9 @@ namespace :v3 do
     Rake::Task["v3:init_re3data"].execute
     Rake::Task["v3:seed_external_services"].execute
     Rake::Task["v3:load_re3data_repos"].execute
+    Rake::Task["ror:index"].execute
+    Rake::Task["v3:seed_org_indices"].execute
+    Rake::Task["v3:purge_ror_fundref_schemes"].execute
   end
 
   # Set any records with a nil `language_id` to the default language
@@ -130,4 +133,32 @@ namespace :v3 do
     ExternalApis::Re3dataService.fetch
   end
 
+  desc "Seed the initial org_indices table with the org_id"
+  task seed_org_indices: :environment do
+    ror_scheme = IdentifierScheme.find_by(name: "ror")
+    fundref_scheme = IdentifierScheme.find_by(name: "fundref")
+
+    if ror_scheme.present?
+      Identifier.where(identifier_scheme: ror_scheme).each do |id|
+        OrgIndex.where(ror_id: id.value, org_id: nil)
+                .update(org_id: id.identifiable_id)
+      end
+    else
+      p "No ROR scheme in identifier_schemes table so nothing to do"
+    end
+  end
+
+  desc "Purge old ROR and FUNDREF IdentifierSchemes"
+  task purge_ror_fundref_schemes: :environment do
+    ror_scheme = IdentifierScheme.find_by(name: "ror")
+    fundref_scheme = IdentifierScheme.find_by(name: "fundref")
+
+    # Drop all the old ror identifiers from the identifiers table since they're now in org_indices
+    Identifier.where(identifier_scheme: ror_scheme).destroy_all if ror_scheme.present?
+    # Drop all the old fundref identifiers from the identifiers table since they're now in org_indices
+    Identifier.where(identifier_scheme: fundref_scheme).destroy_all if fundref_scheme.present?
+    # Drop the identifier schemes for ROR and FundRef
+    ror_scheme&.destroy
+    fundref_scheme&.destroy
+  end
 end

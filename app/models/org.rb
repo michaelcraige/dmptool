@@ -87,7 +87,7 @@ class Org < ApplicationRecord
 
   has_many :templates
 
-  has_many :users
+  has_many :users, counter_cache: true
 
   has_many :annotations
 

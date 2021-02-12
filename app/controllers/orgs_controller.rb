@@ -167,6 +167,10 @@ class OrgsController < ApplicationController
 
       # If we are including external API results
       orgs = case type
+             when "super"
+               OrgIndex.super_search(args[:name])
+             when "new"
+               OrgSelection::NewSearchService.search(term: args[:name])
              when "combined"
                # This type will search both ROR and the local DB giving the local
                # DB results preference. It is triggered from the following pages:
@@ -212,6 +216,8 @@ class OrgsController < ApplicationController
           org[:fundref].present? && !org[:fundref].blank?
         end
       end
+
+pp orgs.inspect
 
       render json: orgs
 

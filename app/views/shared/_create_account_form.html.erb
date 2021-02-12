@@ -20,6 +20,26 @@
                  required: true
                } %>
   </div>
+  <div class="form-group" id="create-account-new-controls">
+    <%= render partial: "shared/org_selectors/new_one",
+               locals: {
+                 form: f,
+                 label: "New Search Service",
+                 search_type: "new",
+                 default_org: resource&.org,
+                 required: true
+               } %>
+  </div>
+  <div class="form-group" id="create-account-super-controls">
+    <%= render partial: "shared/org_selectors/new_one",
+               locals: {
+                 form: f,
+                 label: "SUPER Search Service",
+                 search_type: "super",
+                 default_org: resource&.org,
+                 required: true
+               } %>
+  </div>
   <div class="form-group">
     <%= f.label(:password, _('Password'), class: "control-label") %>
     <%= f.password_field(:password, class: "form-control", "aria-required": true) %>

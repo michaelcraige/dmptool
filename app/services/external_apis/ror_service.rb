@@ -7,6 +7,9 @@ module ExternalApis
   # For more information: https://github.com/ror-community/ror-api
   class RorService < BaseService
 
+    ROR_JSON = Rails.root.join("tmp", "ror.json").freeze
+    ROR_TSTAMP = Rails.root.join("tmp", "last_ror").freeze
+
     class << self
 
       # Retrieve the config settings from the initializer
@@ -40,6 +43,34 @@ module ExternalApis
 
       def search_path
         Rails.configuration.x.ror&.search_path
+      end
+
+
+      def fetch(force: false)
+        # TODO: At some point find a way to retrieve the latest zip file
+        #       They are current stored as zip files within the GitHub repo:
+        #       https://github.com/ror-community/ror-api/tree/master/rorapi/data
+        #
+        # TODO: Write the downloaded json file to the tmp/ dir
+        file = File.new(ROR_JSON, "r")
+        mod_date = file.mtime
+        # Create the timestamp file if it is not present
+        ror_tstamp = File.open(ROR_TSTAMP, "w+") unless File.exist?(ROR_TSTAMP) && !force
+        ror_tstamp = File.open(ROR_TSTAMP, "r+") unless ror_tstamp.present?
+
+        if file.present?
+          if mod_date.to_s == ror_tstamp.read
+            p "ROR file already processed: #{mod_date.to_s}"
+          else
+            p "ROR processing new file: #{mod_date.to_s}"
+            if process_ror_file(file: file, time: mod_date)
+              f = File.open(ROR_TSTAMP, "w")
+              f.write(mod_date.to_s)
+            else
+              p "An error occurred while processing the file!"
+            end
+          end
+        end
       end
 
       # Ping the ROR API to determine if it is online
@@ -200,6 +231,67 @@ module ExternalApis
 
         # Otherwise take the first one listed
         item["external_ids"].fetch("FundRef", {}).fetch("all", []).first
+      end
+
+
+
+      def process_ror_file(file:, time:)
+        return false unless file.present?
+
+        json = JSON.parse(file.read)
+        cntr = 0
+        total = json.length
+        json.each do |hash|
+          cntr += 1
+          p "    processed #{cntr} out of #{total} records" if cntr % 1000 == 0
+          unless process_ror_record(record: hash, time: time)
+            p "        unable to process record for: '#{hash&.fetch("name", "unknown")}'"
+          end
+        end
+        # Remove any old ROR records (their file_timestamps would not have been updated)
+        # Note this does not remove any associated Org records!
+        OrgIndex.where("file_timestamp < #{mod_date.to_s}").destroy_all
+        true
+      rescue JSON::ParserError => e
+        log_error(method: "RORService.process_ror_file", error: e)
+        false
+      end
+
+      def process_ror_record(record:, time:)
+        return nil unless record.present? && record.is_a?(Hash) && record["id"].present?
+
+        org_index = OrgIndex.find_or_create_by(ror_id: record["id"])
+
+        fundref_ids = record.fetch("external_ids", {}).fetch("FundRef", {})
+        fundref = fundref_ids.fetch("preferred", fundref_ids.fetch("all", []).first)
+        fundref = "https://doi.org/10.13039/#{fundref}" if fundref.present?
+
+        # Grab the domain
+        domain_regex = %r{^(?:http://|www\.|https://)([^/]+)}
+        link = record.fetch("links", []).first
+        domain = link&.scan(domain_regex)&.last&.first&.gsub("www.", "")
+        name = [record["name"], domain.present? ? "(#{domain})" : ""].join(" ")
+
+        org_index.acronyms = record["acronyms"]
+        org_index.aliases = record["aliases"]
+        org_index.country = record["country"]
+        org_index.types = record["types"]
+        org_index.file_timestamp = time
+        org_index.fundref_id = fundref
+        org_index.home_page = link.present? && link.length < 255 ? link : nil
+        # If its already associated with an Org don't change the name!
+        org_index.name = safe_string(value: name) unless org_index.org_id.present?
+        org_index.save
+        true
+      rescue StandardError => e
+        log_error(method: "RorService.process_ror_record", error: e)
+        false
+      end
+
+      def safe_string(value:)
+        return value if value.blank? || value.length < 255
+
+        value[0..254]
       end
 
     end
