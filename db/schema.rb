@@ -252,11 +252,14 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.string "fundref_id"
     t.string "name"
     t.string "home_page"
+    t.string "language"
     t.json "types"
     t.json "acronyms"
     t.json "aliases"
     t.json "country"
     t.datetime "file_timestamp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["file_timestamp"], name: "index_org_indices_on_file_timestamp"
     t.index ["fundref_id"], name: "index_org_indices_on_fundref_id"
     t.index ["name"], name: "index_org_indices_on_name"
@@ -285,7 +288,7 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.string "contact_name"
     t.boolean "managed", default: false, null: false
     t.boolean "allow_doi", default: false
-    t.integer "users_count", default: 0
+    t.integer "users_count"
     t.index ["language_id"], name: "fk_rails_5640112cab"
     t.index ["region_id"], name: "fk_rails_5a6adf6bab"
   end

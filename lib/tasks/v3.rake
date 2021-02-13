@@ -134,6 +134,12 @@ namespace :v3 do
     ExternalApis::Re3dataService.fetch
   end
 
+  desc "Populates the new orgs.users_count"
+  task seed_org_users_count: :environment do
+    p "Updating the orgs.users_count field"
+    Org.all.each { |org| Org.reset_counters(org.id, :users) }
+  end
+
   desc "Seed the initial org_indices table with the org_id"
   task seed_org_indices: :environment do
     ror_scheme = IdentifierScheme.find_by(name: "ror")
@@ -147,12 +153,6 @@ namespace :v3 do
     else
       p "No ROR scheme in identifier_schemes table so nothing to do"
     end
-  end
-
-  desc "Populates the new orgs.users_count"
-  task seed_org_users_count: :environment do
-    p "Updating the orgs.users_count field"
-    Org.all.each { |org| Org.reset_counters(org.id, :users) }
   end
 
   desc "Purge old ROR and FUNDREF IdentifierSchemes"

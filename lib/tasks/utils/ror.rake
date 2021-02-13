@@ -4,7 +4,9 @@ namespace :ror do
 
   desc "Populate the org_indices table from latest tmp/ror.json (single use) To force it to reprocess you can pass an argument `rails \"ror:index[true]\"` (Note the quotes)"
   task :index, [:force] => :environment do |_, args|
+    p "Proccessing ROR catalog. See log/[env].log for details - #{Time.now.strftime('%H:%m:%S')}"
     ExternalApis::RorService.fetch(force: args[:force])
+    p "Complete - #{Time.now.strftime('%H:%m:%S')}"
   end
 
   desc "Search"

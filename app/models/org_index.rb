@@ -30,7 +30,7 @@ class OrgIndex < ApplicationRecord
   # = Associations =
   # ================
 
-  belongs_to :org
+  belongs_to :org, optional: true
 
   # ==========
   # = Scopes =
