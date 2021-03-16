@@ -14,14 +14,6 @@ class ResearchOutputPresenter
                   .map { |k, _v| [k.humanize, k] }
   end
 
-  # Returns the mime_type list for a select_tag
-  def selectable_mime_types
-    @research_output.available_mime_types
-                    .reject { |mime| mime.description.downcase.include?("deprecated") }
-                    .sort { |a, b| a.value.downcase <=> b.value.downcase }
-                    .map { |mime| [mime.value, mime.id] }
-  end
-
   # Returns the access options for a select tag
   def selectable_access_types
     ResearchOutput.accesses
@@ -31,6 +23,18 @@ class ResearchOutputPresenter
   # Returns the options for file size units
   def selectable_size_units
     [%w[MB mb], %w[GB gb], %w[TB tb], %w[PB pb], ["bytes", ""]]
+  end
+
+  # Returns the available licenses for a select tag
+  def selectable_licenses
+    License.selectable.map { |license| [license.name, license.id] }
+  end
+
+  # Returns whether or not we should capture the byte_size based on the output_type
+  def byte_sizable?
+    @research_output.audiovisual? || @research_output.sound? || @research_output.image? ||
+      @research_output.model_representation? ||
+      @research_output.data_paper? || @research_output.dataset? || @research_output.text?
   end
 
   # Returns the options for subjects for the repository filter
@@ -99,6 +103,13 @@ class ResearchOutputPresenter
     @research_output.repositories.map(&:name)
   end
 
+  # Returns the display the license name
+  def display_license
+    return _("None specified") unless @research_output.license.present?
+
+    @research_output.license.name
+  end
+
   # Returns the humanized version of the access enum variable
   def display_access
     return _("Unspecified") unless @research_output.access.present?
@@ -111,6 +122,11 @@ class ResearchOutputPresenter
     return _("Unspecified") unless @research_output.release_date.present?
 
     @research_output.release_date.to_date
+  end
+
+  # Return 'Yes', 'No' or 'Unspecified' depending on the value
+  def display_boolean(value:)
+    value.nil? ? "Unspecified" : (value ? "Yes" : "No")
   end
 
 end

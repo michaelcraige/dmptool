@@ -15,10 +15,15 @@ namespace :v3 do
     Rake::Task["v3:init_re3data"].execute
     Rake::Task["v3:seed_external_services"].execute
     Rake::Task["v3:load_re3data_repos"].execute
+<<<<<<< HEAD
     Rake::Task["ror:index"].execute
     Rake::Task["v3:seed_org_indices"].execute
     Rake::Task["v3:seed_org_users_count"].execute
     Rake::Task["v3:purge_ror_fundref_schemes"].execute
+=======
+    Rake::Task["v3:load_spdx_licenses"].execute
+    Rake::Task["v3:backfill_doi_subscriptions"].execute
+>>>>>>> development
   end
 
   # Set any records with a nil `language_id` to the default language
@@ -134,6 +139,7 @@ namespace :v3 do
     ExternalApis::Re3dataService.fetch
   end
 
+<<<<<<< HEAD
   desc "Populates the new orgs.users_count"
   task seed_org_users_count: :environment do
     p "Updating the orgs.users_count field"
@@ -169,4 +175,43 @@ namespace :v3 do
     fundref_scheme&.destroy
   end
 
+=======
+  desc "Load Licenses from SPDX"
+  task load_spdx_licenses: :environment do
+    ExternalApis::SpdxService.fetch
+  end
+
+  desc "Add the DOI Service as an api_client (if necessary) and then set it as subscriber to DOIs"
+  task backfill_doi_subscriptions: :environment do
+    p "Backfilling subscriptions on existing DOIs"
+    if DoiService.minting_service_defined?
+      # First initialize or find the ApiClient for the DOI Service
+      scheme_name = DoiService.scheme_name
+      api_client = ApiClient.find_or_initialize_by(name: scheme_name)
+      api_client.contact_name = "#{ApplicationService.application_name} helpdesk" if api_client.new_record?
+      api_client.contact_email = Rails.configuration.x.organisation.helpdesk_email if api_client.new_record?
+      api_client.save if api_client.new_record?
+
+      scheme = IdentifierScheme.find_by(name: scheme_name)
+      if scheme.present? && api_client.present?
+        Identifier.where(identifier_scheme_id: scheme.id, identifiable_type: "Plan").each do |id|
+          next if Subscription.where(subscriber: api_client, plan_id: id.identifiable_id).any?
+
+          Subscription.create(
+            subscriber: api_client,
+            plan_id: id.identifiable_id,
+            updates: true,
+            deletions: true,
+            callback_uri: DoiService.scheme_callback_uri % { dmp_id: id.value.gsub(scheme.identifier_prefix, "") },
+          )
+        end
+      else
+        p "No IdentifierScheme by the name of '#{scheme_name}' found!"
+      end
+    else
+      p "DOI Minting service is not defined. Skipping backfill of DOI subscriptions"
+    end
+  end
+
+>>>>>>> development
 end

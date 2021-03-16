@@ -3,7 +3,7 @@
 module ExternalApis
 
   # This service provides an interface to a DMPHub system: https://github.com/CDLUC3/dmphub.
-  class DmphubService < BaseService
+  class DmphubService < BaseDoiService
 
     class << self
 
@@ -56,6 +56,18 @@ module ExternalApis
         ApplicationService.application_name.split("-").first.to_sym
       end
 
+      def api_client
+        ApiClient.find_by(name: name.gsub("Service", "").downcase)
+      end
+
+      def callback_path
+        Rails.configuration.x.dmphub&.callback_path || super
+      end
+
+      def callback_method
+        Rails.configuration.x.dmphub&.callback_method&.downcase&.to_sym || super
+      end
+
       # Create a new DOI
       def mint_doi(plan:)
         return nil unless active? && auth
@@ -75,15 +87,33 @@ module ExternalApis
           return nil
         end
 
-        process_response(response: resp)
+        doi = process_response(response: resp)
+        add_subscription(plan: plan, doi: doi) if doi.present?
+        doi
       end
 
       # Update the DOI
       def update_doi(plan:)
-        return nil unless active? && plan.present?
+        return nil unless active? && auth && plan.present?
 
-        # Implement this later once we figure out versioning
-        plan.present?
+        hdrs = {
+          "Authorization": @token,
+          "Server-Agent": "#{caller_name} (#{client_id})"
+        }
+
+        target = "#{api_base_url}#{callback_path}" % { dmp_id: plan.doi.value_without_scheme_prefix }
+        resp = http_put(uri: target, additional_headers: hdrs, debug: true,
+                        data: json_from_template(plan: plan))
+
+        # DMPHub returns a 200 when successful
+        unless resp.present? && resp.code == 200
+          handle_http_failure(method: "DMPHub update_doi", http_response: resp)
+          return nil
+        end
+
+        doi = process_response(response: resp)
+        update_subscription(plan: plan, doi: doi) if doi.present?
+        doi
       end
 
       # Delete the DOI
@@ -92,6 +122,30 @@ module ExternalApis
 
         # implement this later if necessary and if reasonable. Is deleting a DOI feasible?
         plan.present?
+      end
+
+      # Register the ApiClient behind the minter service as a Subscriber to the Plan
+      # if the service has a callback URL and ApiClient
+      def add_subscription(plan:, doi:)
+        Rails.logger.warn "DMPHubService - No ApiClient available for 'dmphub'!" unless api_client.present?
+        return plan unless plan.present? && doi.present? &&
+                           callback_path.present? && api_client.present?
+
+        Subscription.create(
+          plan: plan,
+          subscriber: api_client,
+          callback_uri: callback_path % { dmp_id: doi.gsub(/https?:\/\/doi.org\//, "") },
+          updates: true,
+          deletions: true
+        )
+      end
+
+      # Bump the last_notified timestamp on the subscription
+      def update_subscription(plan:, doi:)
+        Rails.logger.warn "DMPHubService - No ApiClient available for 'dmphub'!" unless api_client.present?
+        return plan unless plan.present? && doi.present? && callback_path.present? && api_client.present?
+
+        Subscription.where(plan: plan, subscriber: api_client).update(last_notified: Time.now)
       end
 
       private

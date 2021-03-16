@@ -24,7 +24,6 @@ if output.is_a?(ResearchOutput)
     json.title "Anticipated distribution for #{output.title}"
     json.byte_size output.byte_size
     json.data_access output.access
-    json.format output.mime_type&.value
 
     json.host do
       json.title repository.name
@@ -34,6 +33,13 @@ if output.is_a?(ResearchOutput)
       # DMPTool extensions to the RDA common metadata standard
       json.dmproadmap_host_id do
         json.partial! "api/v1/identifiers/show", identifier: repository.identifiers.last
+      end
+    end
+
+    if output.license.present?
+      json.license [output.license] do |license|
+        json.license_ref license.url
+        json.start_date presenter.license_start_date
       end
     end
   end

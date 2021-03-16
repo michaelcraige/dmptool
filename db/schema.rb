@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2021_02_12_225208) do
+=======
+ActiveRecord::Schema.define(version: 2021_03_16_145725) do
+>>>>>>> development
 
   create_table "annotations", id: :integer, force: :cascade do |t|
     t.integer "question_id"
@@ -156,6 +160,19 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.string "description"
     t.string "name"
     t.boolean "default_language"
+  end
+
+  create_table "licenses", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "identifier", null: false
+    t.string "url", null: false
+    t.boolean "osi_approved", default: false
+    t.boolean "deprecated", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["identifier", "osi_approved", "deprecated"], name: "index_license_on_identifier_and_criteria"
+    t.index ["identifier"], name: "index_licenses_on_identifier"
+    t.index ["url"], name: "index_licenses_on_url"
   end
 
   create_table "mime_types", force: :cascade do |t|
@@ -337,6 +354,9 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.datetime "start_date"
     t.datetime "end_date"
     t.integer "api_client_id"
+    t.boolean "ethical_issues"
+    t.text "ethical_issues_description"
+    t.string "ethical_issues_report"
     t.index ["funder_id"], name: "index_plans_on_funder_id"
     t.index ["grant_id"], name: "index_plans_on_grant_id"
     t.index ["org_id"], name: "index_plans_on_org_id"
@@ -415,6 +435,21 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.integer "super_region_id"
   end
 
+  create_table "related_identifiers", force: :cascade do |t|
+    t.bigint "identifier_scheme_id"
+    t.integer "identifier_type", null: false
+    t.integer "relation_type", null: false
+    t.bigint "identifiable_id"
+    t.string "identifiable_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "value", null: false
+    t.index ["identifiable_id", "identifiable_type", "relation_type"], name: "index_relateds_on_identifiable_and_relation_type"
+    t.index ["identifier_scheme_id"], name: "index_related_identifiers_on_identifier_scheme_id"
+    t.index ["identifier_type"], name: "index_related_identifiers_on_identifier_type"
+    t.index ["relation_type"], name: "index_related_identifiers_on_relation_type"
+  end
+
   create_table "repositories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description", null: false
@@ -452,9 +487,16 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "repository_id"
+    t.bigint "license_id"
+    t.index ["license_id"], name: "index_research_outputs_on_license_id"
     t.index ["output_type"], name: "index_research_outputs_on_output_type"
     t.index ["plan_id"], name: "index_research_outputs_on_plan_id"
     t.index ["repository_id"], name: "index_research_outputs_on_repository_id"
+  end
+
+  create_table "resources", id: :integer, unsigned: true, force: :cascade do |t|
+    t.string "r_id", default: "", null: false
+    t.string "name", default: "", null: false
   end
 
   create_table "roles", id: :integer, force: :cascade do |t|
@@ -508,6 +550,19 @@ ActiveRecord::Schema.define(version: 2021_02_12_225208) do
     t.datetime "updated_at", null: false
     t.text "details"
     t.boolean "filtered", default: false
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "plan_id"
+    t.integer "subscription_types", null: false
+    t.string "callback_uri"
+    t.bigint "subscriber_id"
+    t.string "subscriber_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "last_notified"
+    t.index ["plan_id"], name: "index_subscriptions_on_plan_id"
+    t.index ["subscriber_id", "subscriber_type", "plan_id"], name: "index_subscribers_on_identifiable_and_plan_id"
   end
 
   create_table "templates", id: :integer, force: :cascade do |t|

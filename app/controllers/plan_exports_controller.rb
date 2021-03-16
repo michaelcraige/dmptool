@@ -8,7 +8,8 @@ class PlanExportsController < ApplicationController
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def show
-    @plan = Plan.includes(:answers).find(params[:plan_id])
+    @plan = Plan.includes(:answers, { template: { phases: { sections: :questions } } })
+                .find(params[:plan_id])
 
     if privately_authorized? && export_params[:form].present?
       skip_authorization
@@ -16,6 +17,7 @@ class PlanExportsController < ApplicationController
       @show_sections_questions = export_params[:question_headings].present?
       @show_unanswered         = export_params[:unanswered_questions].present?
       @show_custom_sections    = export_params[:custom_sections].present?
+      @show_research_outputs   = export_params[:research_outputs].present?
       @public_plan             = false
 
     elsif publicly_authorized?
@@ -24,6 +26,7 @@ class PlanExportsController < ApplicationController
       @show_sections_questions = true
       @show_unanswered         = true
       @show_custom_sections    = true
+      @show_research_outputs   = @plan.template&.allow_research_outputs? || false
       @public_plan             = true
 
     else
@@ -123,9 +126,9 @@ class PlanExportsController < ApplicationController
   end
 
   def export_params
-    params.require(:export).permit(:form, :project_details, :question_headings,
-                                   :unanswered_questions, :custom_sections,
-                                   :formatting)
+    params.require(:export).permit(:form, :project_details, :question_headings, :unanswered_questions,
+                                   :custom_sections, :research_outputs,
+                                   formatting: [:font_face, :font_size, margin: [:top, :right, :bottom, :left]])
   end
 
 end
