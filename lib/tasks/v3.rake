@@ -15,15 +15,12 @@ namespace :v3 do
     Rake::Task["v3:init_re3data"].execute
     Rake::Task["v3:seed_external_services"].execute
     Rake::Task["v3:load_re3data_repos"].execute
-<<<<<<< HEAD
     Rake::Task["ror:index"].execute
     Rake::Task["v3:seed_org_indices"].execute
     Rake::Task["v3:seed_org_users_count"].execute
     Rake::Task["v3:purge_ror_fundref_schemes"].execute
-=======
     Rake::Task["v3:load_spdx_licenses"].execute
     Rake::Task["v3:backfill_doi_subscriptions"].execute
->>>>>>> development
   end
 
   # Set any records with a nil `language_id` to the default language
@@ -139,7 +136,6 @@ namespace :v3 do
     ExternalApis::Re3dataService.fetch
   end
 
-<<<<<<< HEAD
   desc "Populates the new orgs.users_count"
   task seed_org_users_count: :environment do
     p "Updating the orgs.users_count field"
@@ -175,7 +171,6 @@ namespace :v3 do
     fundref_scheme&.destroy
   end
 
-=======
   desc "Load Licenses from SPDX"
   task load_spdx_licenses: :environment do
     ExternalApis::SpdxService.fetch
@@ -213,5 +208,4 @@ namespace :v3 do
     end
   end
 
->>>>>>> development
 end

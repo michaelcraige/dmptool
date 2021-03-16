@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2021_02_12_225208) do
-=======
 ActiveRecord::Schema.define(version: 2021_03_16_145725) do
->>>>>>> development
 
   create_table "annotations", id: :integer, force: :cascade do |t|
     t.integer "question_id"
