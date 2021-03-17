@@ -1,3 +1,4 @@
+/*
 import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
 
 $(() => {
@@ -7,3 +8,4 @@ $(() => {
   scrubOrgSelectionParamsOnSubmit('#new_contributor');
   scrubOrgSelectionParamsOnSubmit('form.edit_contributor');
 });
+*/

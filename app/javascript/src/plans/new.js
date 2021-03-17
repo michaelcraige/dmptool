@@ -1,5 +1,5 @@
 import debounce from '../utils/debounce';
-import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
+//import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
 import getConstant from '../utils/constants';
 import { isObject, isArray, isString } from '../utils/isType';
 import { renderAlert, hideNotifications } from '../utils/notificationHelper';
@@ -134,7 +134,7 @@ $(() => {
     const section = $(context);
 
     if (section.length > 0) {
-      initAutocomplete(`${context} .autocomplete`);
+      //initAutocomplete(`${context} .autocomplete`);
 
       const autocomplete = $(section).find('.autocomplete');
       const hidden = autocomplete.siblings('.autocomplete-result');
@@ -173,6 +173,6 @@ $(() => {
   handleComboboxChange();
   // Scrub out the large arrays of data used for the Org Selector JS so that they
   // are not a part of the form submissiomn
-  scrubOrgSelectionParamsOnSubmit('#new_plan');
+  //scrubOrgSelectionParamsOnSubmit('#new_plan');
   toggleSubmit();
 });

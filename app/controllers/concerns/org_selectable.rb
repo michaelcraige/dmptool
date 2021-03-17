@@ -123,5 +123,4 @@ module OrgSelectable
     end
   end
   # rubocop:enable Metrics/BlockLength
-
 end

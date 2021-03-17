@@ -52,12 +52,23 @@ class OrgIndex < ApplicationRecord
     where("LOWER(org_indices.types) LIKE LOWER(?)", "%#{term}%")
   }
 
-  scope :search, lambda { |term|
+  # Get all of the OrgIndex entries that have been connected to another object (e.g. Plan, User, etc.)
+  scope :known, lambda {
+    joins(:org)
+  }
+
+  # Get all of the OrgIndex entries that have NOT been connected to another object (e.g. Plan, User, etc.)
+  scope :unknown, lambda { |ids|
+    left_outer_joins(:org).where(org: nil)
+  }
+
+  scope :search, lambda { |term, known_only, funder_only|
     results = by_name(term).or(by_acronym(term)).or(by_alias(term))
-    results = results.map(&:to_org)
+    results = results.known if known_only
 
     # Also search the Orgs that have no association to this org_indices class
-    results += Org.includes(:users).where.not(id: OrgIndex.all.pluck(:org_id)).search(term)
+    # results += Org.includes(:users).where.not(id: OrgIndex.all.pluck(:org_id)).search(term) unless funder_only
+    results = extract_funders(results: results) if funder_only
     sort_search_results(results: results, term: term)
   }
 
@@ -91,9 +102,14 @@ class OrgIndex < ApplicationRecord
 
   class << self
 
+    # Remove any results that are not a funder
+    def extract_funders(results:)
+      results.select { |result| result.fundref_id.present? }
+    end
+
     # Sort the results by their weight (desacending) and then name (ascending)
     def sort_search_results(results:, term:)
-      return [] unless results.is_a?(Array) && results.any? && term.present?
+      return [] unless results.any? && term.present?
 
       results.map { |result| { weight: weigh(term: term, org: result), name: result.name, org: result } }
              .sort { |a, b| [b[:weight], a[:name]] <=> [a[:weight], b[:name]] }
@@ -103,12 +119,12 @@ class OrgIndex < ApplicationRecord
     # Weighs the result. The greater the weight the closer the match, preferring Orgs already in use
     def weigh(term:, org:)
       score = 0
-      return score unless term.present? && org.present? && org.is_a?(Org)
+      return score unless term.present? && org.present?
 
-      score += 1 if org.abbreviation == term.upcase
+      score += 1 if org.is_a?(OrgIndex) && org.acronyms.include?(term.upcase)
+      score += 1 if org.is_a?(Org) && org.abbreviation.upcase == term.upcase
       score += 2 if org.name.downcase.start_with?(term.downcase)
       score += 1 if org.name.downcase.include?(term.downcase) && !org.name.downcase.start_with?(term.downcase)
-      score += org.users_count
       score
     end
 

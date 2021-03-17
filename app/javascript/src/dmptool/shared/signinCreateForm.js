@@ -1,12 +1,12 @@
 /* eslint-env browser */ // This allows us to reference 'window' below
 import * as Cookies from 'js-cookie';
-import { initAutocomplete } from '../../utils/autoComplete';
+// import { initAutocomplete } from '../../utils/autoComplete';
 import { isObject, isString } from '../../utils/isType';
 import getConstant from '../../utils/constants';
 
 $(() => {
-  initAutocomplete('#create-account-org-controls .autocomplete');
-  initAutocomplete('#shib-ds-org-controls .autocomplete');
+  // initAutocomplete('#create-account-org-controls .autocomplete');
+  // initAutocomplete('#shib-ds-org-controls .autocomplete');
   const email = Cookies.get('dmproadmap_email');
 
   // Signin remember me

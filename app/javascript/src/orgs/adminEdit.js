@@ -3,7 +3,7 @@ import 'number-to-text/converters/en-us';
 import { isObject } from '../utils/isType';
 import { Tinymce } from '../utils/tinymce.js.erb';
 import { eachLinks } from '../utils/links';
-import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
+// import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
 
 $(() => {
   const toggleFeedback = () => {
@@ -25,12 +25,14 @@ $(() => {
   Tinymce.init({ selector: '#org_feedback_email_msg' });
   toggleFeedback();
 
+  /*
   if ($('#org-details-org-controls').length > 0) {
     initAutocomplete('#org-details-org-controls .autocomplete');
     // Scrub out the large arrays of data used for the Org Selector JS so that they
     // are not a part of the form submissiomn
     scrubOrgSelectionParamsOnSubmit('#edit_org_profile_form');
   }
+  */
 
   // update the hidden org_type field based on the checkboxes selected
   const calculateOrgType = () => {
@@ -57,6 +59,6 @@ $(() => {
     $(e.target).parent('a').tooltip('toggle');
   });
 
-  initAutocomplete('#org-merge-controls .autocomplete');
-  scrubOrgSelectionParamsOnSubmit('form.edit_org');
+  // initAutocomplete('#org-merge-controls .autocomplete');
+  // scrubOrgSelectionParamsOnSubmit('form.edit_org');
 });

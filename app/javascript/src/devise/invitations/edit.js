@@ -1,3 +1,4 @@
+/*
 import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../../utils/autoComplete';
 
 $(() => {
@@ -6,3 +7,4 @@ $(() => {
   // are not a part of the form submissiomn
   scrubOrgSelectionParamsOnSubmit('#invitation_create_account_form');
 });
+*/
