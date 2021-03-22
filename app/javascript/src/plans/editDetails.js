@@ -3,28 +3,7 @@ import { toggleConditionalFields } from '../utils/conditional';
 import getConstant from '../utils/constants';
 
 $(() => {
-  const grantIdField = $('.grant-id-typeahead');
-  const grantIdHidden = $('input#plan_grant_value');
-
-  $('#is_test').click((e) => {
-    $('#plan_visibility').val($(e.target).is(':checked') ? 'is_test' : 'privately_visible');
-  });
-
-  const ethicalIssues = $('#plan_ethical_issues');
-  const funderId = $('#plan_org_id');
-
-  if (ethicalIssues.length > 0) {
-    // If the user checks the ethical_issues field then display the other ethics fields
-    ethicalIssues.on('change', () => {
-      toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
-    }).change();
-  }
-  if (funderId.length > 0) {
-    // If the plan has a funder defined then display the other funder fields
-    funderId.on('change', () => {
-      toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
-    }).change();
-  }
+  const form = $('form.edit_plan');
 
   // Toggle the disabled flags
   const toggleCheckboxes = (selections) => {
@@ -109,34 +88,61 @@ $(() => {
     }
   };
 
-  $('#other-guidance-orgs').find('input[type="checkbox"]').click((e) => {
-    const checkbox = $(e.target);
-    // Since this is the modal window, copy any selections over to the priority list
-    if (checkbox.is(':checked')) {
-      const priorityList = $('#priority-guidance-orgs');
-      if (priorityList.find(`input[value="${checkbox.val()}"]`).length <= 0) {
-        const li = checkbox.closest('li');
-        // If its a subgroup copy the whole group otherwise just copy the line
-        if (li.children('.sublist').length > 0) {
-          priorityList.append(li.closest('ul').parent().clone());
-        } else {
-          priorityList.append(li.clone());
+  if (form.length > 0) {
+    const grantIdField = $('.grant-id-typeahead');
+    const grantIdHidden = $('input#plan_grant_value');
+    const ethicalIssues = $('#plan_ethical_issues');
+    const funderId = $('#plan_org_id');
+
+    Tinymce.init({ selector: '#plan_description' });
+    Tinymce.init({ selector: '#plan_ethical_issues_description' });
+
+    $('#is_test').click((e) => {
+      $('#plan_visibility').val($(e.target).is(':checked') ? 'is_test' : 'privately_visible');
+    });
+
+    if (ethicalIssues.length > 0) {
+      // If the user checks the ethical_issues field then display the other ethics fields
+      ethicalIssues.on('change', () => {
+        toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
+      }).change();
+    }
+    if (funderId.length > 0) {
+      // If the plan has a funder defined then display the other funder fields
+      funderId.on('change', () => {
+        toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
+      }).change();
+    }
+
+    $('#other-guidance-orgs').find('input[type="checkbox"]').click((e) => {
+      const checkbox = $(e.target);
+      // Since this is the modal window, copy any selections over to the priority list
+      if (checkbox.is(':checked')) {
+        const priorityList = $('#priority-guidance-orgs');
+        if (priorityList.find(`input[value="${checkbox.val()}"]`).length <= 0) {
+          const li = checkbox.closest('li');
+          // If its a subgroup copy the whole group otherwise just copy the line
+          if (li.children('.sublist').length > 0) {
+            priorityList.append(li.closest('ul').parent().clone());
+          } else {
+            priorityList.append(li.clone());
+          }
         }
       }
-    }
-    syncGuidance(checkbox.closest('ul[id]'));
-  });
+      syncGuidance(checkbox.closest('ul[id]'));
+    });
 
-  $('#priority-guidance-orgs').find('input[type="checkbox"]').click((e) => {
-    syncGuidance($(e.target).closest('ul[id]'));
-  });
+    $('#priority-guidance-orgs').find('input[type="checkbox"]').click((e) => {
+      syncGuidance($(e.target).closest('ul[id]'));
+    });
 
-  // initAutocomplete('#funder-org-controls .autocomplete');
-  // Scrub out the large arrays of data used for the Org Selector JS so that they
-  // are not a part of the form submissiomn
-  // scrubOrgSelectionParamsOnSubmit('form.edit_plan');
+    // initAutocomplete('#funder-org-controls .autocomplete');
+    // Scrub out the large arrays of data used for the Org Selector JS so that they
+    // are not a part of the form submissiomn
+    // scrubOrgSelectionParamsOnSubmit('form.edit_plan');
 
-  toggleCheckboxes($('#priority-guidance-orgs input[type="checkbox"]:checked').map((i, el) => $(el).val()).get());
+    toggleCheckboxes($('#priority-guidance-orgs input[type="checkbox"]:checked').map((i, el) => $(el).val()).get());
 
-  setUpTypeahead();
+    setUpTypeahead();
+  }
 });
