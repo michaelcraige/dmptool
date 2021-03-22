@@ -1,5 +1,4 @@
 import debounce from '../utils/debounce';
-//import { initAutocomplete, scrubOrgSelectionParamsOnSubmit } from '../utils/autoComplete';
 import getConstant from '../utils/constants';
 import { isObject, isArray, isString } from '../utils/isType';
 import { renderAlert, hideNotifications } from '../utils/notificationHelper';
@@ -49,17 +48,28 @@ $(() => {
     }
   };
 
-  // TODO: Refactor this whole thing when we redo the create plan
-  //       workflow and use js.erb instead!
+  const getId = (context, attrName) => {
+    if (context.length > 0) {
+      const nameParts = context.attr(attrName).split('-');
+      return nameParts[nameParts.length - 1];
+    }
+    return '';
+  };
+
+  const relatedDataList = (id) => $(`#autocomplete-list-${id}`);
+
   const getValue = (context) => {
     if (context.length > 0) {
-      const hidden = $(context).find('.autocomplete-result');
-      if (hidden.length > 0 && hidden.val().length > 0
-         && hidden.val() !== '{}' && hidden.val() !== '{"name":""}') {
-        return hidden.val();
+      const textField = $(context).find('.auto-complete');
+      const dataList = relatedDataList(getId(textField, 'list'));
+
+      // We only allow selections from the list so return nil unless they match
+      if (dataList.length > 0) {
+        const selection = dataList.find(`option[id="${textField.val()}"]`);
+        return selection.length > 0 ? selection.val() : '';
       }
     }
-    return '{}';
+    return '';
   };
 
   const validOptions = (context) => {
@@ -68,14 +78,7 @@ $(() => {
       const checkbox = $(context).find('input.toggle-autocomplete');
       const val = getValue(context);
 
-      if (val.length > 0 && val !== '{}') {
-        const json = JSON.parse(val);
-        // If the json ONLY contains a name then it is not a valid selection
-        ret = (checkbox.prop('checked') || json.id !== undefined);
-      } else {
-        // Otherwise just focus on the checkbox
-        ret = checkbox.prop('checked');
-      }
+      ret = checkbox.prop('checked') || val !== '';
     }
     return ret;
   };
@@ -96,8 +99,8 @@ $(() => {
       // Clear out the old template dropdown contents
       $('#plan_template_id option').remove();
 
-      let orgId = orgContext.find('input[id$="org_id"]').val();
-      let funderId = funderContext.find('input[id$="funder_id"]').val();
+      let orgId = getValue(orgContext.find('auto-complete'));
+      let funderId = getValue(funderContext.find('auto-complete'));
 
       // For some reason Rails freaks out it everything is empty so send
       // the word "none" instead and handle on the controller side
@@ -124,8 +127,7 @@ $(() => {
     const checked = checkbox.prop('checked');
     autocomplete.val('');
     autocomplete.prop('disabled', checked);
-    autocomplete.siblings('.autocomplete-result').val('');
-    autocomplete.siblings('.autocomplete-warning').hide();
+    autocomplete.siblings('.auto-complete').val('');
 
     handleComboboxChange();
   };
@@ -134,13 +136,10 @@ $(() => {
     const section = $(context);
 
     if (section.length > 0) {
-      //initAutocomplete(`${context} .autocomplete`);
-
-      const autocomplete = $(section).find('.autocomplete');
-      const hidden = autocomplete.siblings('.autocomplete-result');
+      const autocomplete = $(section).find('.auto-complete');
       const checkbox = $(section).find('input.toggle-autocomplete');
 
-      hidden.on('change', () => {
+      autocomplete.on('change', () => {
         handleComboboxChange();
       });
 
@@ -173,6 +172,5 @@ $(() => {
   handleComboboxChange();
   // Scrub out the large arrays of data used for the Org Selector JS so that they
   // are not a part of the form submissiomn
-  //scrubOrgSelectionParamsOnSubmit('#new_plan');
   toggleSubmit();
 });

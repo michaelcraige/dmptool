@@ -22,21 +22,23 @@
       <!-- Plan name section -->
       <h2 id="project-title"><span class="red" title="<%= required_project_title_tooltip %>">*<em class="sr-only"><%= required_project_title_tooltip %></em> </span><%= _('What research project are you planning?') %></h2>
       <div class="row">
-        <div class="form-group col-xs-6">
-          <em class="sr-only"><%= project_title_tooltip %></em>
-          <%= f.text_field(:title, class: 'form-control', 'aria-describedby': 'project-title', 'aria-required': 'true', 'aria-label': 'project-title',
-                'data-toggle': 'tooltip',
-                'data-placement': 'bottom',
-                spellcheck: true,
-                title: project_title_tooltip ) %>
-        </div>
-        <div class="col-md-1">&nbsp;</div>
-        <div class="form-group col-xs-5">
-          <div class="checkbox create-plan-mock">
-            <%= label_tag(:is_test) do %>
-              <%= check_box_tag(:is_test, "1", false) %>
-              <%= _('mock project for testing, practice, or educational purposes') %>
-            <% end %>
+        <div class="col-md-12">
+          <div class="form-group col-xs-6">
+            <em class="sr-only"><%= project_title_tooltip %></em>
+            <%= f.text_field(:title, class: 'form-control', 'aria-describedby': 'project-title', 'aria-required': 'true', 'aria-label': 'project-title',
+                  'data-toggle': 'tooltip',
+                  'data-placement': 'bottom',
+                  spellcheck: true,
+                  title: project_title_tooltip ) %>
+          </div>
+          <div class="col-md-1">&nbsp;</div>
+          <div class="form-group col-xs-5">
+            <div class="checkbox create-plan-mock">
+              <%= label_tag(:is_test) do %>
+                <%= check_box_tag(:is_test, "1", false) %>
+                <%= _('mock project for testing, practice, or educational purposes') %>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
@@ -51,14 +53,14 @@
            <em class="sr-only"><%= research_org_tooltip %></em>
            <% dflt = @orgs.include?(current_user.org) ? current_user.org : nil %>
            <%= f.fields_for :org, @plan.org do |org_fields| %>
-             <%= render partial: "shared/org_selectors/local_only",
-                        locals: {
-                          form: org_fields,
-                          id_field: :id,
-                          default_org: dflt,
-                          orgs: @orgs,
-                          required: false
-                        } %>
+              <%= render partial: "shared/org_autocomplete",
+                         locals: { form: f,
+                                   col_size: 12,
+                                   default_org: dflt,
+                                   required: false,
+                                   known_only: true,
+                                   non_funder_only: true,
+                                   label: _("Organisation") } %>
           <% end %>
         </div>
         <div class="col-md-1 pad-top-10 create-plan-or"><strong>- <%= _('or') %> -</strong></div>
@@ -79,15 +81,14 @@
         <div class="form-group col-xs-6">
           <em class="sr-only"><%= primary_funding_tooltip %></em>
           <%= f.fields_for :funder, @plan.funder = Org.new do |funder_fields| %>
-            <%= render partial: "shared/org_selectors/local_only",
-                        locals: {
-                          form: funder_fields,
-                          id_field: :id,
-                          label: _("Funder"),
-                          default_org: nil,
-                          orgs: @funders,
-                          required: false
-                        } %>
+            <%= render partial: "shared/org_autocomplete",
+                         locals: { form: f,
+                                   col_size: 12,
+                                   default_org: nil,
+                                   required: false,
+                                   known_only: true,
+                                   funder_only: true,
+                                   label: _("Funder") } %>
           <% end %>
         </div>
         <div class="col-md-1 create-plan-or"><strong>- <%= _('or') %> -</strong></div>

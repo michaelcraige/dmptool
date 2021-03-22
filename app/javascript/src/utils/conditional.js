@@ -1,6 +1,6 @@
 // Toggle (hide/show) the additional fields related to the context
 
-export const toggleConditionalFields = (context, displayFields) => {
+const toggleConditionalFields = (context, displayFields) => {
   if (context.length > 0) {
     const container = $(context).closest('conditional');
 
@@ -14,3 +14,5 @@ export const toggleConditionalFields = (context, displayFields) => {
     }
   }
 };
+
+export default toggleConditionalFields;

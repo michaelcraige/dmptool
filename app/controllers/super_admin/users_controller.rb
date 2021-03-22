@@ -34,23 +34,10 @@ module SuperAdmin
       # See if the user selected a new Org via the Org Lookup and
       # convert it into an Org
       attrs = user_params
-      lookup = org_from_params(params_in: attrs)
-      identifiers = identifiers_from_params(params_in: attrs)
-
-      # Remove the extraneous Org Selector hidden fields
-      attrs = remove_org_selection_params(params_in: attrs)
 
       if @user.update_attributes(attrs)
-        # If its a new Org create it
-        if lookup.present? && lookup.new_record?
-          lookup.save
-          identifiers.each do |identifier|
-            identifier.identifiable = lookup
-            identifier.save
-          end
-          lookup.reload
-        end
-        @user.update(org_id: lookup.id) if lookup.present?
+        org = process_org!
+        @user.update(org_id: org.id) if org.present?
 
         flash.now[:notice] = success_message(@user, _("updated"))
       else
@@ -115,10 +102,8 @@ module SuperAdmin
       params.require(:user).permit(:email,
                                    :firstname,
                                    :surname,
-                                   :org_id, :org_name, :org_crosswalk,
                                    :department_id,
-                                   :language_id,
-                                   :other_organisation)
+                                   :language_id)
     end
 
   end

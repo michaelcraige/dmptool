@@ -1,6 +1,6 @@
 import getConstant from './constants';
 import debounce from './debounce';
-import { toggleConditionalFields } from './conditional';
+import toggleConditionalFields from './conditional';
 
 $(() => {
   const debounceAutocompleteMap = {};
@@ -8,29 +8,18 @@ $(() => {
   const getId = (context, attrName) => {
     if (context.length > 0) {
       const nameParts = context.attr(attrName).split('-');
-      return nameParts[nameParts.length - 1]
+      return nameParts[nameParts.length - 1];
     }
+    return '';
   };
 
-  const relatedAutocomplete = (id) => {
-    return $(`[list="autocomplete-list-${id}"]`);
-  };
+  const relatedAutocomplete = (id) => $(`[list="autocomplete-list-${id}"]`);
 
-  const relatedNotInListCheckbox = (id) => {
-    return $(`[context="not-in-list-${id}"]`);
-  };
+  const relatedNotInListCheckbox = (id) => $(`[context="not-in-list-${id}"]`);
 
-  const relatedUserEnteredOrg = (id) => {
-    return $(`.user-entered-org-${id}`);
-  };
+  const relatedWarning = (id) => $(`.autocomplete-warning-${id}`);
 
-  const relatedWarning = (id) => {
-    return $(`.autocomplete-warning-${id}`);
-  };
-
-  const relatedDataList = (id) => {
-    return $(`#autocomplete-list-${id}`);
-  };
+  const relatedDataList = (id) => $(`#autocomplete-list-${id}`);
 
   const toggleWarning = (autocomplete) => {
     const warning = relatedWarning(getId(autocomplete, 'list'));
@@ -111,7 +100,6 @@ $(() => {
     const checkbox = $(e.currentTarget);
     const id = getId(checkbox, 'context');
     const autocomplete = relatedAutocomplete(id);
-    const userEnteredOrg = relatedUserEnteredOrg(id);
 
     // Display the conditional field and then blank the contents of the autocomplete
     const checked = checkbox.prop('checked');

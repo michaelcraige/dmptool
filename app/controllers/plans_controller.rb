@@ -229,13 +229,12 @@ class PlansController < ApplicationController
                            end
       @plan.guidance_groups = GuidanceGroup.where(id: guidance_group_ids)
 
-      # TODO: For some reason the `fields_for` isn't adding the
-      #       appropriate namespace, so org_id represents our funder
-      funder = org_from_params(params_in: attrs, allow_create: true)
+      funder = process_org!
+      # Make sure we set this org to a funder!
+      funder.update(funder: true) unless funder.funder?
       @plan.funder_id = funder.present? ? funder.id : nil
       @plan.grant = plan_params[:grant]
       attrs.delete(:grant)
-      attrs = remove_org_selection_params(params_in: attrs)
 
       if @plan.update(attrs) # _attributes(attrs)
         format.html do

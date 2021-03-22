@@ -1,9 +1,12 @@
 import { Tinymce } from '../utils/tinymce.js.erb';
-import { toggleConditionalFields } from '../utils/conditional';
+import toggleConditionalFields from '../utils/conditional';
 import getConstant from '../utils/constants';
 
 $(() => {
   const form = $('form.edit_plan');
+
+  const grantIdField = $('.grant-id-typeahead');
+  const grantIdHidden = $('input#plan_grant_value');
 
   // Toggle the disabled flags
   const toggleCheckboxes = (selections) => {
@@ -89,10 +92,8 @@ $(() => {
   };
 
   if (form.length > 0) {
-    const grantIdField = $('.grant-id-typeahead');
-    const grantIdHidden = $('input#plan_grant_value');
     const ethicalIssues = $('#plan_ethical_issues');
-    const funderId = $('#plan_org_id');
+    const funderName = $('#org_index_name');
 
     Tinymce.init({ selector: '#plan_description' });
     Tinymce.init({ selector: '#plan_ethical_issues_description' });
@@ -107,10 +108,10 @@ $(() => {
         toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
       }).change();
     }
-    if (funderId.length > 0) {
+    if (funderName.length > 0) {
       // If the plan has a funder defined then display the other funder fields
-      funderId.on('change', () => {
-        toggleConditionalFields(ethicalIssues, ethicalIssues.prop('checked'));
+      funderName.on('change', () => {
+        toggleConditionalFields(funderName, funderName.val() === '');
       }).change();
     }
 

@@ -7,14 +7,13 @@
     <p><%= sanitize(_("Please select the Organisation that will replace the current organisation: '<strong>%{org_name}</strong>'.") % { org_name: org.name }) %></p>
     <p><%= _(" Then click the 'analyze' button to review the proposed changes. Note that no changes will take place until you have reviewed and approve of the changes.") %></p>
     <%= form_for org, url: merge_analyze_super_admin_org_path(org), method: :post, remote: true do |form| %>
-     <%= render partial: "shared/org_selectors/local_only",
-                locals: {
-                  form: form,
-                  id_field: :id,
-                  default_org: nil,
-                  orgs: Org.includes(identifiers: :identifier_scheme).all.reject { |o| o == org },
-                  required: true
-                } %>
+      <%= render partial: "shared/org_autocomplete",
+              locals: { form: form,
+                        default_org: nil,
+                        required: true,
+                        known_only: true,
+                        label: _("Organisation") } %>
+
       <%= form.button(_('Analyze'), class: "btn btn-primary", type: "submit") %>
     <% end %>
   </div>

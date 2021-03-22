@@ -1,11 +1,14 @@
 <%# locals: form, default_org, required, funder_only, known_only, label %>
 
 <%
+col_size = col_size || 8
 default_org = default_org || nil
 # Whether or not the org selection is required
 required = required || false
 # Whether or not to restrict the search to funders
 funder_only = funder_only || false
+# Whether or not to exclude funders from the search
+non_funder_only = non_funder_only || false
 # Whether or not to restrict the search to records that exist in the orgs table only
 known_only = known_only || false
 # The label to use
@@ -15,7 +18,7 @@ autocomplete_id = SecureRandom.hex(6)
 %>
 
 <%= fields_for :org_index do |org_index_fields| %>
-  <div class="col-md-8">
+  <div class="col-md-<%= col_size %>">
     <%= org_index_fields.label :name, label %>
     <%= org_index_fields.text_field :name, class: "form-control auto-complete", placeholder: placeholder,
                               value: default_org&.name,
@@ -25,7 +28,8 @@ autocomplete_id = SecureRandom.hex(6)
                               data: {
                                 remote: true,
                                 url: orgs_search_path(
-                                  known_only: known_only, funder_only: funder_only, context: autocomplete_id
+                                  known_only: known_only, funder_only: funder_only,
+                                  non_funder_only: non_funder_only, context: autocomplete_id
                                 )
                               } %>
 
@@ -40,7 +44,7 @@ autocomplete_id = SecureRandom.hex(6)
 
   <% unless known_only %>
     <conditional>
-      <div class="checkbox col-md-8">
+      <div class="checkbox col-md-<%= col_size %>">
         <div class="col-md-4">
           <%= org_index_fields.label(:not_in_list, class: 'control-label') do %>
             <%= org_index_fields.check_box(:not_in_list, class: "new-org-entry",
@@ -57,5 +61,4 @@ autocomplete_id = SecureRandom.hex(6)
     </conditional>
   <% end %>
 
-  <%#= org_index_fields.hidden_field :id, value: default_org&.id, class: "autocomplete-result" %>
 <% end %>

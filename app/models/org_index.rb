@@ -68,7 +68,7 @@ class OrgIndex < ApplicationRecord
     results = extract_funders(results: results) if funder_only
 
     # Also search the Orgs that have no association to this org_indices class
-    unknowns = Org.funders.where.not(id: OrgIndex.all.pluck(:org_id)) if funder_only
+    unknowns = Org.funder.where.not(id: OrgIndex.all.pluck(:org_id)) if funder_only
     unknowns = Org.where.not(id: OrgIndex.all.pluck(:org_id)) unless unknowns.present?
     results += unknowns.search(term)
 

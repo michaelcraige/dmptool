@@ -132,18 +132,12 @@ ethics_report_tooltip = _("Link to a protocol from a meeting with an ethics comm
 
 <conditional>
   <div id="funder-org-controls" class="form-group">
-    <div class="col-md-8">
-      <%= fields_for :funder, plan.funder do |funder_fields| %>
-        <%= render partial: "shared/org_selectors/combined",
-            locals: {
-              form: form,
-              funder_only: true,
-              label: _("Funder"),
-              default_org: plan.funder,
-              required: false
-            } %>
-      <% end %>
-    </div>
+    <%= render partial: "shared/org_autocomplete",
+              locals: { form: form,
+                        default_org: contributor.org,
+                        required: false,
+                        funder_only: true,
+                        label: _("Funder") } %>
   </div>
 
   <div class="form-group toggleable-field"><!-- grant_number -->

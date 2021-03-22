@@ -109,15 +109,7 @@ module SuperAdmin
                 .find(params[:id])
       authorize @org
 
-      lookup = OrgSelection::HashToOrgService.to_org(
-        hash: JSON.parse(merge_params[:id]), allow_create: false
-      )
-      @target_org = Org.includes(:templates, :tracker, :annotations,
-                                 :departments, :token_permission_types, :funded_plans,
-                                 identifiers: [:identifier_scheme],
-                                 guidance_groups: [guidances: [:themes]],
-                                 users: [identifiers: [:identifier_scheme]])
-                       .find(lookup.id)
+      @target_org = process_org!
     end
 
     # POST /super_admin/:id/merge_commit

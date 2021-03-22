@@ -192,7 +192,7 @@ class RegistrationsController < Devise::RegistrationsController
       message += _("Please enter a Last name. ")
       mandatory_params &&= false
     end
-    if update_params[:org_id].blank?
+    if params.fetch(:org_index, {})[:name].blank?
       # rubocop:disable Layout/LineLength
       message += _("Please select an organisation from the list, or enter your organisation's name.")
       # rubocop:enable Layout/LineLength
@@ -302,26 +302,20 @@ class RegistrationsController < Devise::RegistrationsController
   def sign_up_params
     params.require(:user).permit(:email, :password, :password_confirmation,
                                  :firstname, :surname, :recovery_email,
-                                 :accept_terms, :org_id, :org_name,
-                                 :org_crosswalk, :language_id)
+                                 :accept_terms, :language_id)
   end
 
   def update_params
     params.require(:user).permit(:email, :firstname, :org_id, :language_id,
                                  :current_password, :password, :password_confirmation,
-                                 :surname, :department_id, :org_id,
-                                 :org_name, :org_crosswalk)
+                                 :surname, :department_id)
   end
 
   # Finds or creates the selected org and then returns it's id
   def handle_org(attrs:)
-    return attrs unless attrs.present? && attrs[:org_id].present?
+    return attrs unless attrs.present? && params[:org_index].present?
 
-    org = org_from_params(params_in: attrs, allow_create: true)
-
-    # Remove the extraneous Org Selector hidden fields
-    attrs = remove_org_selection_params(params_in: attrs)
-    return attrs unless org.present?
+    org = process_org!
 
     # reattach the org_id but with the Org id instead of the hash
     attrs[:org_id] = org.id

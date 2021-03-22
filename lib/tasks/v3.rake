@@ -18,7 +18,6 @@ namespace :v3 do
     Rake::Task["ror:index"].execute
     Rake::Task["v3:seed_org_indices"].execute
     Rake::Task["v3:seed_org_users_count"].execute
-    Rake::Task["v3:purge_ror_fundref_schemes"].execute
     Rake::Task["v3:load_spdx_licenses"].execute
     Rake::Task["v3:backfill_doi_subscriptions"].execute
   end
@@ -155,20 +154,6 @@ namespace :v3 do
     else
       p "No ROR scheme in identifier_schemes table so nothing to do"
     end
-  end
-
-  desc "Purge old ROR and FUNDREF IdentifierSchemes"
-  task purge_ror_fundref_schemes: :environment do
-    ror_scheme = IdentifierScheme.find_by(name: "ror")
-    fundref_scheme = IdentifierScheme.find_by(name: "fundref")
-
-    # Drop all the old ror identifiers from the identifiers table since they're now in org_indices
-    Identifier.where(identifier_scheme: ror_scheme).destroy_all if ror_scheme.present?
-    # Drop all the old fundref identifiers from the identifiers table since they're now in org_indices
-    Identifier.where(identifier_scheme: fundref_scheme).destroy_all if fundref_scheme.present?
-    # Drop the identifier schemes for ROR and FundRef
-    ror_scheme&.destroy
-    fundref_scheme&.destroy
   end
 
   desc "Load Licenses from SPDX"

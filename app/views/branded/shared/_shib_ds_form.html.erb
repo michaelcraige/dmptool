@@ -16,15 +16,12 @@
             <%= form_for Org.new, url: shibboleth_ds_path, method: :post do |f| %>
               <div id="shib-ds-org-controls" class="row">
                 <div class="form-group col-md-12">
-                  <%= render partial: "shared/org_selectors/local_only",
-                             locals: {
-                                 form: f,
-                                 id_field: :id,
-                                 default_org: nil,
-                                 orgs: participating,
-                                 required: false,
-                                 label: _("Look up your institution here")
-                              } %>
+                <%= render partial: "shared/org_autocomplete",
+                           locals: { form: f,
+                                     default_org: nil,
+                                     required: false,
+                                     known_only: true,
+                                     label: _("Look up your institution here") } %>
                 </div>
               </div>
               <%= button_tag _('Go'), class: "btn btn-default", id: "org-select-go", disabled: "disabled" %>
