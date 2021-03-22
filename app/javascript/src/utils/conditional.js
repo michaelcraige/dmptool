@@ -4,8 +4,6 @@ export const toggleConditionalFields = (context, displayFields) => {
   if (context.length > 0) {
     const container = $(context).closest('conditional');
 
-console.log(`container: ${container.length} -> ${displayFields} :: ${displayFields === true}`);
-
     if (container.length > 0) {
       if (displayFields === true) {
         container.find('.toggleable-field').show();

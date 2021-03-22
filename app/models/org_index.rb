@@ -54,21 +54,24 @@ class OrgIndex < ApplicationRecord
 
   # Get all of the OrgIndex entries that have been connected to another object (e.g. Plan, User, etc.)
   scope :known, lambda {
-    joins(:org)
+    where.not(org_id: nil)
   }
 
   # Get all of the OrgIndex entries that have NOT been connected to another object (e.g. Plan, User, etc.)
   scope :unknown, lambda { |ids|
-    left_outer_joins(:org).where(org: nil)
+    where(org_id: nil)
   }
 
   scope :search, lambda { |term, known_only, funder_only|
     results = by_name(term).or(by_acronym(term)).or(by_alias(term))
     results = results.known if known_only
+    results = extract_funders(results: results) if funder_only
 
     # Also search the Orgs that have no association to this org_indices class
-    # results += Org.includes(:users).where.not(id: OrgIndex.all.pluck(:org_id)).search(term) unless funder_only
-    results = extract_funders(results: results) if funder_only
+    unknowns = Org.funders.where.not(id: OrgIndex.all.pluck(:org_id)) if funder_only
+    unknowns = Org.where.not(id: OrgIndex.all.pluck(:org_id)) unless unknowns.present?
+    results += unknowns.search(term)
+
     sort_search_results(results: results, term: term)
   }
 
@@ -84,7 +87,7 @@ class OrgIndex < ApplicationRecord
     institution = types.include?("Education")
     Org.new(
       name: name,
-      abbreviation: acronyms.first&.upcase,
+      abbreviation: acronyms.any? ? acronyms.first&.upcase : Org.name_to_abbreviation(name: name),
       contact_email: Rails.configuration.x.organisation.helpdesk_email,
       contact_name: _("%{app_name} helpdesk") % { app_name: ApplicationService.application_name },
       is_other: false,

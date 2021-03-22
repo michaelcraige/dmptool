@@ -24,9 +24,9 @@ import 'bootstrap-select';
 
 // Utilities
 import '../src/utils/accordion';
-import '../src/utils/autoComplete';
 import '../src/utils/externalLink';
 import '../src/utils/modalSearch';
+import '../src/utils/orgAutoComplete';
 import '../src/utils/outOfFocus';
 import '../src/utils/paginable';
 import '../src/utils/panelHeading';
@@ -43,7 +43,6 @@ import { renderAlert, renderNotice } from '../src/utils/notificationHelper';
 import '../src/answers/conditions';
 import '../src/answers/edit';
 import '../src/answers/rdaMetadata';
-import '../src/contributors/form';
 import '../src/devise/invitations/edit';
 import '../src/devise/passwords/edit';
 import '../src/devise/registrations/edit';

@@ -59,8 +59,49 @@ module OrgSelectable
 
   # rubocop:disable Metrics/BlockLength
   included do
-    private
 
+    def org_selectable_params
+      params.require(:org_index).permit(%i[name not_in_list user_entered_name])
+    end
+
+    def process_org!
+      name = org_selectable_params[:user_entered_name]
+      name = org_selectable_params[:name] unless name.present?
+      return nil unless name.present?
+
+      # check the Orgs table first
+      org = Org.where("LOWER(name) = ?", name.downcase).first
+      if org.present?
+        return org
+      end
+
+      # fetch from the ror table
+      org_index = OrgIndex.where("LOWER(name) = ?", name.downcase).first
+      if org_index.present?
+        # Convert the OrgIndex to an Org, save it and then update the OrgIndex
+        org = org_index.to_org
+        org.save
+        org_index.update(org_id: org.id)
+        return org
+      end
+
+      # We only want to create it if the user clicked the 'not in list' checkbox
+      return nil unless org_selectable_params[:user_entered_name].present?
+
+      # otherwise create a new org
+      Org.create(
+        name: name,
+        abbreviation: Org.name_to_abbreviation(name: name),
+        contact_email: Rails.configuration.x.organisation.helpdesk_email,
+        contact_name: _("%{app_name} helpdesk") % { app_name: ApplicationService.application_name },
+        is_other: false,
+        managed: false,
+        users_count: 0,
+        organisation: true
+      )
+    end
+
+=begin
     # Converts the incoming params_into an Org by either locating it
     # via its id, identifier and/or name, or initializing a new one
     def org_from_params(params_in:, allow_create: true)
@@ -121,6 +162,8 @@ module OrgSelectable
       end
       org.reload
     end
+=end
+
   end
   # rubocop:enable Metrics/BlockLength
 end

@@ -32,11 +32,14 @@ $(() => {
     return $(`#autocomplete-list-${id}`);
   };
 
-  const toggleWarning = (autocomplete, displayIt) => {
+  const toggleWarning = (autocomplete) => {
     const warning = relatedWarning(getId(autocomplete, 'list'));
 
     if (warning.length > 0) {
-      if (displayIt) {
+      const dataList = relatedDataList(getId(autocomplete, 'list'));
+      const selection = dataList.find(`option[id="${autocomplete.val()}"]`);
+
+      if (selection.length <= 0) {
         warning.removeClass('hide').show();
       } else {
         warning.addClass('hide').hide();
@@ -44,13 +47,15 @@ $(() => {
     }
   };
 
+  // Quickly changing forcus triggers the call to the server
   const forceRailsRemote = debounce((autocomplete) => {
     if (autocomplete.length > 0) {
       // Force the Rails remote call
       autocomplete.blur().focus();
     }
-  }, 600);
+  }, 500);
 
+  // Setup a debounced call to the server to query for Orgs
   const handleAutocompleteUserInput = (autocomplete) => {
     if (autocomplete.length > 0) {
       const id = getId(autocomplete, 'list');
@@ -72,6 +77,7 @@ $(() => {
     }
   };
 
+  // Ad the user types we want to trigger the search
   $('body').on('keyup', '.auto-complete', (e) => {
     const autocomplete = $(e.currentTarget);
     const code = (e.keyCode || e.which);
@@ -82,11 +88,10 @@ $(() => {
         const checkbox = relatedNotInListCheckbox(getId(autocomplete, 'list'));
 
         if (checkbox.length > 0) {
-          // Uncheck the Not in List checkbox
+          // Auto Uncheck the Not in List checkbox if the user is typing in this box
           checkbox.prop('checked', false);
           toggleConditionalFields(checkbox, false);
         }
-        toggleWarning(autocomplete, false);
         handleAutocompleteUserInput(autocomplete);
       } else {
         e.preventDefault();
@@ -96,16 +101,9 @@ $(() => {
     }
   });
 
-  $('body').on('change', '.auto-complete', (e) => {
-    const autocomplete = $(e.currentTarget);
-    const dataList = relatedDataList(getId(autocomplete, 'list'));
-    const selection = dataList.find(`option[id="${autocomplete.val()}"]`);
-
-    if (selection.length <= 0) {
-      toggleWarning(autocomplete, true);
-    } else {
-      toggleWarning(autocomplete, false);
-    }
+  // When the value in the Org Autocomplete changes we need to toggle the Warning message
+  $('body').on('input', '.auto-complete', (e) => {
+    toggleWarning($(e.currentTarget));
   });
 
   // Initialize any related 'not in list' conditionals
@@ -115,10 +113,9 @@ $(() => {
     const autocomplete = relatedAutocomplete(id);
     const userEnteredOrg = relatedUserEnteredOrg(id);
 
-    // Display the conditional field and then copy the contents of the autocomplete into the new org box
+    // Display the conditional field and then blank the contents of the autocomplete
     const checked = checkbox.prop('checked');
     toggleConditionalFields(checkbox, checked);
-    userEnteredOrg.val(checked ? autocomplete.val() : '');
     autocomplete.val('');
   });
 

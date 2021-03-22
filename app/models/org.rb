@@ -236,6 +236,20 @@ class Org < ApplicationRecord
     HUMANIZED_ATTRIBUTES[attr.to_sym] || super
   end
 
+  # =================
+  # = Class methods =
+  # =================
+
+  class << self
+
+    def name_to_abbreviation(name:)
+      return nil unless name.present?
+
+      name.split.map { |w| w[0].upcase }.join.gsub("(", "")
+    end
+
+  end
+
   # ===========================
   # = Public instance methods =
   # ===========================
