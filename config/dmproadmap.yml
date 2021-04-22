@@ -97,7 +97,8 @@ default: &default
   dragonfly_bucket:
   dragonfly_host: ""
   dragonfly_root_path: "logos"
-  dragonfly_secret:
+  dragonfly_secret: ""
+  dragonfly_region: "us-west-2"
   dragonfly_url_scheme: "s3"
 
   # ======================================
