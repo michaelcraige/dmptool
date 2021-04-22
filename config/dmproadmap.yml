@@ -95,7 +95,7 @@ default: &default
   # See https://github.com/markevans/dragonfly
   dragonfly_aws: false
   dragonfly_bucket:
-  dragonfly_host:
+  dragonfly_host: ""
   dragonfly_root_path: "logos"
   dragonfly_secret:
   dragonfly_url_scheme: "s3"
