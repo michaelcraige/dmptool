@@ -61,3 +61,14 @@ namespace :cleanup do
     end
   end
 end
+
+namespace :hackery do
+  desc "Move TinyMCE skin files to public dir"
+  task :copy_tinymce_skins do
+    on roles(:app), wait: 1 do
+      execute "mkdir -p #{release_path}/public/tinymce/skins/"
+      execute "cp -f #{install_path}/node_modules/tinymce/skins/lightgray/ #{release_path}/public/tinymce/skins/"
+      execute "cp #{install_path}/app/assets/stylesheets/tinymce.css #{release_path}/public/tinymce/tinymce.css"
+    end
+  end
+end
