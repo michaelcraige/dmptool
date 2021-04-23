@@ -62,7 +62,7 @@ prms = {
   region: Dragonfly.app.datastore.region,
   scheme: Dragonfly.app.datastore.url_scheme,
   url_host: Dragonfly.app.datastore.url_host,
-  use_iam_profile: Dragonfly.app.datastore.use_iam_profile
+  use_iam_profile: Dragonfly.app.datastore.use_iam_profile,
   bucket_name: Dragonfly.app.datastore.bucket_name
 }
 prms.merge(Dragonfly.app.datastore.storage_headers)
