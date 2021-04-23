@@ -52,8 +52,8 @@ Rails.logger.warn "DRAGONFLY BUCKET: #{Dragonfly.app.datastore.bucket_name}"
 Rails.logger.warn "DRAGONFLY RESULT OF URL_FOR(): #{Dragonfly.app.datastore.url_for('FOO')}"
 Rails.logger.warn "DRAGONFLY BUCKET EXISTS?: #{Dragonfly.app.datastore.bucket_exists?}"
 
-Rails.logger.warn "DRAGONFLY FULL PATH: #{Dragonfly.app.datastore.full_path('FOO')}"
-Rails.logger.warn "DRAGONFLY FULL STORAGE HEADERS: #{Dragonfly.app.datastore.full_storage_headers(headers = {'Content-Type' => content.mime_type})}"
+# Rails.logger.warn "DRAGONFLY FULL PATH: #{Dragonfly.app.datastore.full_path('FOO')}"
+# Rails.logger.warn "DRAGONFLY FULL STORAGE HEADERS: #{Dragonfly.app.datastore.full_storage_headers(headers = {'Content-Type' => content.mime_type})}"
 
 
 Rails.logger.warn "FOG CDN: #{Dragonfly.app.datastore.cdn}"
