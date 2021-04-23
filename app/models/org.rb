@@ -153,6 +153,7 @@ class Org < ApplicationRecord
   #  after_assign :resize_image
   #end
   dragonfly_accessor :logo
+
   # ---------------------------------------
   # End DMPTool Customization
   # ---------------------------------------
@@ -173,20 +174,6 @@ class Org < ApplicationRecord
   # environment. The orgs.logo_uid stores the path to the physical logo file that is
   # stored in the Dragonfly data store (default is: public/system/dragonfly/[env]/)
   def check_for_missing_logo_file
-
-Rails.logger.warn "DRAGONFLY DATASTORE CLASS: #{Dragonfly.app.datastore.class.name}"
-Rails.logger.warn "DRAGONFLY ROOT PATH: #{Dragonfly.app.datastore.root_path}"
-Rails.logger.warn "DRAGONFLY REGION: #{Dragonfly.app.datastore.region}"
-Rails.logger.warn "DRAGONFLY URL SCHEME: #{Dragonfly.app.datastore.url_scheme}"
-Rails.logger.warn "DRAGONFLY URL HOST: #{Dragonfly.app.datastore.url_host}"
-Rails.logger.warn "DRAGONFLY USE IAM?: #{Dragonfly.app.datastore.use_iam_profile}"
-Rails.logger.warn "DRAGONFLY FOG OPTS: #{Dragonfly.app.datastore.fog_storage_options}"
-Rails.logger.warn "DRAGONFLY STORAGE HDRS: #{Dragonfly.app.datastore.storage_headers}"
-Rails.logger.warn "DRAGONFLY BUCKET: #{Dragonfly.app.datastore.bucket_name}"
-Rails.logger.warn "DRAGONFLY RESULT OF URL_FOR(): #{Dragonfly.app.datastore.url_for('FOO')}"
-Rails.logger.warn "DRAGONFLY BUCKET EXISTS?: #{Dragonfly.app.datastore.bucket_exists?}"
-
-
 #    return unless logo_uid.present?
 
 #    data_store_path = Dragonfly.app.datastore.root_path

@@ -39,21 +39,6 @@ class OrgsController < ApplicationController
     attrs = org_params
     @org = Org.find(params[:id])
     authorize @org
-
-Rails.logger.warn "DRAGONFLY DATASTORE CLASS: #{Dragonfly.app.datastore.class.name}"
-Rails.logger.warn "DRAGONFLY ROOT PATH: #{Dragonfly.app.datastore.root_path}"
-Rails.logger.warn "DRAGONFLY REGION: #{Dragonfly.app.datastore.region}"
-Rails.logger.warn "DRAGONFLY URL SCHEME: #{Dragonfly.app.datastore.url_scheme}"
-Rails.logger.warn "DRAGONFLY URL HOST: #{Dragonfly.app.datastore.url_host}"
-Rails.logger.warn "DRAGONFLY USE IAM?: #{Dragonfly.app.datastore.use_iam_profile}"
-Rails.logger.warn "DRAGONFLY FOG OPTS: #{Dragonfly.app.datastore.fog_storage_options}"
-Rails.logger.warn "DRAGONFLY STORAGE HDRS: #{Dragonfly.app.datastore.storage_headers}"
-Rails.logger.warn "DRAGONFLY BUCKET: #{Dragonfly.app.datastore.bucket_name}"
-Rails.logger.warn "DRAGONFLY RESULT OF URL_FOR(): #{Dragonfly.app.datastore.url_for('FOO')}"
-Rails.logger.warn "DRAGONFLY BUCKET EXISTS?: #{Dragonfly.app.datastore.bucket_exists?}"
-
-Rails.logger.warn "DRAGONFLY REMOTE URL: #{Dragonfly.app.remote_url_for('logos/LICENSE.md')}"
-
     @org.logo = attrs[:logo] if attrs[:logo]
     tab = (attrs[:feedback_enabled].present? ? "feedback" : "profile")
     @org.links = ActiveSupport::JSON.decode(params[:org_links]) if params[:org_links].present?

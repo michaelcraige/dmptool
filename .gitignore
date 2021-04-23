@@ -109,6 +109,7 @@ spec/examples.txt
 /config/master.key
 /config/credentials.yml
 /config/credentials*.yml.enc
+/config/credentials/
 /config/secrets.yml
 
 /public/packs
