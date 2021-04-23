@@ -20,7 +20,7 @@ Dragonfly.app.configure do
               root_path: Rails.configuration.x.dmproadmap.dragonfly_root_path,
               bucket_name: Rails.configuration.x.dmproadmap.dragonfly_bucket,
               use_iam_profile: true,
-              storage_headers: { "x-amz-acl": "read-write" }
+              storage_headers: { "x-amz-acl": "bucket-owner-full-control" }
   end
 end
 
