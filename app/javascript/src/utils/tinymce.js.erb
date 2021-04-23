@@ -9,6 +9,8 @@ import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/link';
 import 'tinymce/plugins/paste';
 import 'tinymce/plugins/advlist';
+// Skin
+import 'tinymce/skins/lightgray/skin.min.css';
 
 // Other dependencies
 import { isObject, isString } from './isType';
@@ -43,11 +45,12 @@ export const defaultOptions = {
   table_default_attributes: {
     border: 1,
   },
+  skin: false,
   // editorManager.baseURL is not resolved properly for IE since document.currentScript
   // is not supported, see issue https://github.com/tinymce/tinymce/issues/358
   // skin_url: '/tinymce/skins/lightgray',
   // content_css: ['/tinymce/tinymce.css'],
-  skin_url: '<%= helpers.stylesheet_link_tag "tinymce" %>',
+  // skin_url: '<%= helpers.stylesheet_link_tag "tinymce" %>',
 };
 /*
   This function is invoked anytime a new editor is initialised (e.g. Tinymce.init())
