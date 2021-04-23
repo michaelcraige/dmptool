@@ -28,6 +28,7 @@ set :keep_releases, 5
 
 namespace :deploy do
   before :compile_assets, "deploy:retrieve_credentials"
+  after :deploy, "hackery:copy_tinymce_skins"
   after :deploy, "git:version"
   after :deploy, "cleanup:remove_example_configs"
 
@@ -63,6 +64,8 @@ namespace :cleanup do
 end
 
 namespace :hackery do
+  # Webpacker and TinyMCE do not play nicely with one another. Webpacker/Rails stores its copiled CSS and JS
+  # in minified application.[ext] files that are fingerprinted but TinyMCE expects them elsewhere
   desc "Move TinyMCE skin files to public dir"
   task :copy_tinymce_skins do
     on roles(:app), wait: 1 do
