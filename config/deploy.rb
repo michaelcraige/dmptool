@@ -70,7 +70,7 @@ namespace :hackery do
   task :copy_tinymce_skins do
     on roles(:app), wait: 1 do
       execute "mkdir -p #{release_path}/public/tinymce/skins/"
-      execute "cp -f #{release_path}/node_modules/tinymce/skins/lightgray/ #{release_path}/public/tinymce/skins/"
+      execute "cp -r #{release_path}/node_modules/tinymce/skins/lightgray/ #{release_path}/public/tinymce/skins/"
       execute "cp #{release_path}/app/assets/stylesheets/tinymce.css #{release_path}/public/tinymce/tinymce.css"
     end
   end
