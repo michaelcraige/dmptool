@@ -52,6 +52,23 @@ Rails.logger.warn "DRAGONFLY BUCKET: #{Dragonfly.app.datastore.bucket_name}"
 Rails.logger.warn "DRAGONFLY RESULT OF URL_FOR(): #{Dragonfly.app.datastore.url_for('FOO')}"
 Rails.logger.warn "DRAGONFLY BUCKET EXISTS?: #{Dragonfly.app.datastore.bucket_exists?}"
 
+Rails.logger.warn "DRAGONFLY FULL PATH: #{Dragonfly.app.datastore.full_path('FOO')}"
+Rails.logger.warn "DRAGONFLY FULL STORAGE HEADERS: #{Dragonfly.app.datastore.full_storage_headers(headers = {'Content-Type' => content.mime_type})}"
+
+
+Rails.logger.warn "FOG CDN: #{Dragonfly.app.datastore.cdn}"
+prms = {
+  root_path: Dragonfly.app.datastore.root_path,
+  region: Dragonfly.app.datastore.region,
+  scheme: Dragonfly.app.datastore.url_scheme,
+  url_host: Dragonfly.app.datastore.url_host,
+  use_iam_profile: Dragonfly.app.datastore.use_iam_profile
+  bucket_name: Dragonfly.app.datastore.bucket_name
+}
+prms.merge(Dragonfly.app.datastore.storage_headers)
+Rails.logger.warn "FOG URL: #{Dragonfly.app.datastore.url(prms, 60.seconds)}"
+Rails.logger.warn "FOG REQUEST URL: #{Dragonfly.app.datastore.request_url(prms)}"
+Rails.logger.warn "FOG SIGNED URL: #{Dragonfly.app.datastore.request_url(prms, 60.seconds)}"
 
     @org.logo = attrs[:logo] if attrs[:logo]
     tab = (attrs[:feedback_enabled].present? ? "feedback" : "profile")
