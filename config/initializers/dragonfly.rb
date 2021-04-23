@@ -19,7 +19,8 @@ Dragonfly.app.configure do
               url_host: Rails.configuration.x.dmproadmap.dragonfly_bucket,
               root_path: Rails.configuration.x.dmproadmap.dragonfly_root_path,
               bucket_name: Rails.configuration.x.dmproadmap.dragonfly_bucket,
-              use_iam_profile: true
+              use_iam_profile: true,
+              fog_storage_options: { "x-amz-acl": "public-read-write" }
   end
 end
 
